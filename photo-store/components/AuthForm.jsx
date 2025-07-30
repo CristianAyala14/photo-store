@@ -1,6 +1,7 @@
 "use client";
-import supabase from "@/utils/supabaseClient";
+import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // App Router
 
 export default function AuthForm() {
   const [isNewUser, setIsNewUser] = useState(false);
@@ -9,10 +10,24 @@ export default function AuthForm() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
 
- 
+  const supabase = createClient()
+  const router = useRouter();
+
+  
   async function handleSignIn(e) {
     e.preventDefault();
-    // lógica de login
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (!error) {
+      setIsSigningIn(true);
+      router.push("/dashboard"); // ⬅️ redirección manual
+    } else {
+        console.log("Error al iniciar sesión:", error.message);
+      }
   }
 
    async function handleSignUp(e) {
@@ -23,6 +38,8 @@ export default function AuthForm() {
     });
     if(!error) {
       setIsSigningUp(true);
+      router.push("/dashboard"); // ⬅️ redirección manual
+
     }
     console.log({data, error});
   }
